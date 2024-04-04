@@ -7,6 +7,13 @@ class Register(StatesGroup):
     SucceedSub: Final = State()
 
 
+class Request(StatesGroup):
+    CreateRequest: Final = State()
+    Dialog: Final = State()
+    # ConnectToEvent: Final = State()
+    # ShowEvents: Final = State()
+
+
 class Event(StatesGroup):
     CreateEvent: Final = State()
     ConnectToEvent: Final = State()
