@@ -18,8 +18,14 @@ from utils.states import Register
 async def __start(message: Message, state: FSMContext):
     print('произошел старт')
     args = message.get_args()
-    # print(args)
+    print(args)
     user_id = message.from_user.id
+    if args == '':
+        await state.reset_state()
+        msg_txt = "Отправил вам клавиатуру. Используйте кнопки, чтобы пользоваться ботом"
+        await bot.send_message(chat_id=user_id, text=msg_txt, reply_markup=await kb_main_menu(user_id))
+        return
+
     # args = args.split('-')
     # if len(args) == 2:
     user_website_id = args

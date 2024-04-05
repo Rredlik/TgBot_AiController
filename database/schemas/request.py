@@ -14,6 +14,7 @@ class Dialogs(TimedBaseModel):
 class Requests(TimedBaseModel):
     __tablename__ = "Requests"
     request_id = Column(BigInteger, primary_key=True, autoincrement=True)
+    dialog_id = Column(BigInteger)
     created = Column(BigInteger)
     prompt = Column(String)
     answer = Column(String)

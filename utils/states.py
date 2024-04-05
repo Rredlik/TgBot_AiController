@@ -8,10 +8,9 @@ class Register(StatesGroup):
 
 
 class Request(StatesGroup):
-    CreateRequest: Final = State()
-    Dialog: Final = State()
-    # ConnectToEvent: Final = State()
-    # ShowEvents: Final = State()
+    CreateDialog: Final = State()
+    SetNameDialog: Final = State()
+    MakeRequest: Final = State()
 
 
 class Event(StatesGroup):
