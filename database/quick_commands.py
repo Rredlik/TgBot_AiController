@@ -2,6 +2,7 @@ from asyncpg import UniqueViolationError
 
 from database.main import db
 from database.schemas.company import Company
+from database.schemas.request import Dialogs, Requests
 from database.schemas.user import User
 
 
@@ -19,6 +20,28 @@ async def add_company(company_id: str, company_name):
         await company.create()
     except UniqueViolationError:
         print("Компания не добавлена")
+
+
+async def add_dialog(dialog_name: str, telegram_id):
+    try:
+        user = await select_user_by_telegram_id(telegram_id)
+        dialog = Dialogs(name=dialog_name, user_id=user.user_id)
+        data = await dialog.create()
+        return data.dialog_id
+    except UniqueViolationError:
+        print("Диалог не создан")
+
+
+async def add_request_to_dialog(dialog_id: str, prompt):
+    try:
+        request = Requests(dialog_id=dialog_id, prompt=prompt)
+        '''
+        TODO: Добавлять контекст в диалог Dialog.context += prompt
+        '''
+        data = await request.create()
+        return data.request_id
+    except UniqueViolationError:
+        print("Запрос не создан")
 
 
 async def select_all_users():

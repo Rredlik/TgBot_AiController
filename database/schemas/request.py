@@ -6,9 +6,10 @@ from database.main import TimedBaseModel
 class Dialogs(TimedBaseModel):
     __tablename__ = "Dialogs"
     dialog_id = Column(BigInteger, primary_key=True, autoincrement=True)
-    dialog_name = Column(String)
+    name = Column(String)
     user_id = Column(BigInteger)
     context = Column(String)
+    query: sql.select
 
 
 class Requests(TimedBaseModel):

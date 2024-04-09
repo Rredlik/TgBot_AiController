@@ -9,8 +9,9 @@ from loguru import logger
 # from database.main import connectToDB
 # from database.methods.db_user import update_user_data
 from database import quick_commands as commands
-from database.quick_commands import select_company
+from database.quick_commands import select_company, select_user_by_telegram_id
 from handlers.keyboards import *
+from handlers.keyboards import kb_main_menu
 from loader import bot
 from utils.states import Register
 
@@ -95,6 +96,15 @@ async def __start(message: Message, state: FSMContext):
     #     await bot.send_message(chat_id=user_id, text=msg_txt)
 
 
+async def user_main_menu(msg: Message, state: FSMContext):
+    user = await select_user_by_telegram_id(msg.from_user.id)
+    await bot.send_message(chat_id=msg.from_user.id,
+                           text=f'Главное меню\n\n'
+                                f'Пользователь: {user.first_name}\n'
+                                f'Почта: {user.email}\n',
+                           reply_markup=await kb_main_menu(user.telegram_id))
+
+
 async def __ref(message: Message, state: FSMContext):
     ref_link = await get_start_link(payload='351931465-1711620726794x118791242414806770')
     await message.answer(f'Привет {message.from_user.first_name}\n'
@@ -116,13 +126,13 @@ async def __ref(message: Message, state: FSMContext):
 #     await bot.send_message(chat_id=user_id, text=msg_txt, reply_markup=await kb_main_menu(user_id))
 
 
-async def __mainMenu(msg: Message, state: FSMContext) -> None:
-    await state.reset_state()
-    user_id = msg.from_user.id
-    msg_text = 'Используй кнопки, чтобы пользоваться ботом'
-    await bot.send_message(chat_id=user_id,
-                           text=msg_text,
-                           reply_markup=await kb_main_menu(user_id))
+# async def __mainMenu(msg: Message, state: FSMContext) -> None:
+#     await state.reset_state()
+#     user_id = msg.from_user.id
+#     msg_text = 'Используй кнопки, чтобы пользоваться ботом'
+#     await bot.send_message(chat_id=user_id,
+#                            text=msg_text,
+#                            reply_markup=await kb_main_menu(user_id))
 
 
 ###########################################################################################################
@@ -176,3 +186,6 @@ def _register_register_handlers(dp: Dispatcher) -> None:
     dp.register_message_handler(__ref, commands=["ref"], state='*')
     # dp.register_message_handler(__getName, content_types=[ContentType.TEXT], state=Register.WaitLogin)
     # dp.register_callback_query_handler(attention_to_sub, lambda c: c.data == 'check_sub_status', state='*')
+
+
+

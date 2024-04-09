@@ -3,7 +3,7 @@ import asyncio
 from config import Env
 from database.main import db
 import quick_commands as commands
-from database.schemas.request import Requests
+from database.schemas.request import Requests, Dialogs
 from database.schemas.solution import Solution
 
 
@@ -12,8 +12,8 @@ async def db_test():
     # await db.gino.drop_all()
     await db.gino.create_all()
 
-    await Requests.create(prompt='test request 2')
-    await Solution.create(name='ChatGPT')
+    # await Requests.create(name='test dialog 1', user_id=2)
+    # await Solution.create(name='ChatGPT')
     # await commands.add_user('111111', 'test')
     # await commands.add_user('351931465', 'skidikis')
     # await commands.add_user('222222222', 'test2')
