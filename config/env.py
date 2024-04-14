@@ -23,3 +23,6 @@ class Env(ABC):
     # channel_link = env.str('CHANNEL_LINK')
     ADMINS = env.list("ADMINS")  # Тут у нас будет список из админов
     # IP = env.str("ip")  # Тоже str, но для айпи адреса хоста
+
+    SBER_CLIENT_SECRET: Final = env.str("SBER_CLIENT_SECRET")
+    SBER_AUTH_DATA: Final = env.str("SBER_AUTH_DATA")
