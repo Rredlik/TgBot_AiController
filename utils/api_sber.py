@@ -57,7 +57,9 @@ async def send_requests(prompt):
                                       data=payload,
                                       headers=headers,
                                       ssl=False)
-        return await response.json()
+        answer = await response.json()
+        # print(answer)
+        return answer
 
 
 # 1713206017559
