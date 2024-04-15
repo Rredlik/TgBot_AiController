@@ -2,6 +2,7 @@ from datetime import datetime
 
 from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters import Text
 from aiogram.types import Message, ContentType
 from aiogram.utils.deep_linking import get_start_link
 from loguru import logger
@@ -13,7 +14,7 @@ from database.quick_commands import select_company, select_user_by_telegram_id
 from handlers.keyboards import *
 from handlers.keyboards import kb_main_menu
 from loader import bot
-from utils.states import Register
+from utils.states import Register, Request
 
 
 async def __start(message: Message, state: FSMContext):
@@ -95,8 +96,9 @@ async def __start(message: Message, state: FSMContext):
     #                "https://ai-control-service.bubbleapps.io/version-test/")
     #     await bot.send_message(chat_id=user_id, text=msg_txt)
 
-
+cancel_btn = KeyboardButton('Назад 🔙')
 async def user_main_menu(msg: Message, state: FSMContext):
+    await state.reset_state()
     user = await select_user_by_telegram_id(msg.from_user.id)
     await bot.send_message(chat_id=msg.from_user.id,
                            text=f'Главное меню\n\n'
@@ -184,6 +186,9 @@ def _register_register_handlers(dp: Dispatcher) -> None:
     dp.register_message_handler(__start, commands=["start"], state='*')
 
     dp.register_message_handler(__ref, commands=["ref"], state='*')
+
+    dp.register_message_handler(user_main_menu,
+                                Text(equals=cancel_btn), state=Request.MakeRequest)
     # dp.register_message_handler(__getName, content_types=[ContentType.TEXT], state=Register.WaitLogin)
     # dp.register_callback_query_handler(attention_to_sub, lambda c: c.data == 'check_sub_status', state='*')
 

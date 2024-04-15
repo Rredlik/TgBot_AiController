@@ -51,6 +51,12 @@ async def __dialog_created_setName(msg: Message, state: FSMContext):
 
 async def __create_new_request(msg: Message, state: FSMContext):
     # await state.set_state(Request.MakeRequest)
+    print(msg.text)
+    if msg.text == cancel_btn:
+        await user_main_menu(msg, state)
+        print(msg.text)
+        return
+
     data = await state.get_data()
     # print()
     # print(data['dialog_id'])
@@ -81,9 +87,6 @@ async def __create_new_request(msg: Message, state: FSMContext):
                                      f'Ответ:\n'
                                      f'{"".join(answer)}',
                                 message_id=sended_msg.message_id)
-    await bot.edit_message_reply_markup(chat_id=msg.from_user.id,
-                                        message_id=sended_msg.message_id,
-                                        reply_markup=markup)
 
 
 #############################
@@ -92,9 +95,9 @@ async def __create_new_request(msg: Message, state: FSMContext):
 
 def register_request_handlers(dp: Dispatcher) -> None:
     # region EVENT
-    dp.register_message_handler(_cancel_action,
-                                Text(equals=cancel_btn), state=Request.MakeRequest)
 
+    dp.register_message_handler(_cancel_action,
+                                Text(equals=cancel_btn.text), state='*')
     ## create event
     dp.register_message_handler(__create_new_dialog_waitName,
                                 Text(equals=kb.btn_new_request), state='*')
@@ -104,3 +107,5 @@ def register_request_handlers(dp: Dispatcher) -> None:
 
     dp.register_message_handler(__create_new_request,
                                 content_types=[ContentType.TEXT], state=Request.MakeRequest)
+
+
