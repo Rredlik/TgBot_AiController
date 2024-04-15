@@ -3,14 +3,14 @@ from datetime import datetime
 from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
-from aiogram.types import Message, ContentType
+from aiogram.types import Message, ContentType, CallbackQuery
 from aiogram.utils.deep_linking import get_start_link
 from loguru import logger
 
 # from database.main import connectToDB
 # from database.methods.db_user import update_user_data
 from database import quick_commands as commands
-from database.quick_commands import select_company, select_user_by_telegram_id
+from database.quick_commands import select_company, select_user_by_telegram_id, add_tester_user
 from handlers.keyboards import *
 from handlers.keyboards import kb_main_menu
 from loader import bot
@@ -20,9 +20,18 @@ from utils.states import Register, Request
 async def __start(message: Message, state: FSMContext):
     print('произошел старт')
     args = message.get_args()
-    print(args)
+    # print(args)
     user_id = message.from_user.id
-    if args == '':
+    user = await select_user_by_telegram_id(user_id)
+    # print(user)
+    if args == 'tester' and user is None:
+        await add_tester_user(user_id, telegram_username=message.from_user.username)
+        msg_txt = ("Добро пожаловать в бота сервиса AI Control!\n"
+                   "Это у вас тестовый аккаунт с ограниченным функционалом")
+        await bot.send_message(chat_id=user_id, text=msg_txt, reply_markup=await kb_main_menu(user_id))
+        return
+
+    if user is not None:
         await state.reset_state()
         msg_txt = "Отправил вам клавиатуру. Используйте кнопки, чтобы пользоваться ботом"
         await bot.send_message(chat_id=user_id, text=msg_txt, reply_markup=await kb_main_menu(user_id))
@@ -57,7 +66,6 @@ async def __start(message: Message, state: FSMContext):
                        "https://ai-control-service.bubbleapps.io/version-test/\n"
                        "Сгенерируйте ссылку для доступа через сайт")
             await bot.send_message(chat_id=user_id, text=msg_txt)
-
 
         # if company == '0':
         #     msg_txt = ("Приветствую вас! Это бот для использования сервиса AI Control.\n"
@@ -96,11 +104,14 @@ async def __start(message: Message, state: FSMContext):
     #                "https://ai-control-service.bubbleapps.io/version-test/")
     #     await bot.send_message(chat_id=user_id, text=msg_txt)
 
+
 cancel_btn = KeyboardButton('Назад 🔙')
-async def user_main_menu(msg: Message, state: FSMContext):
+
+
+async def user_main_menu(call: Message or CallbackQuery, state: FSMContext):
     await state.reset_state()
-    user = await select_user_by_telegram_id(msg.from_user.id)
-    await bot.send_message(chat_id=msg.from_user.id,
+    user = await select_user_by_telegram_id(call.from_user.id)
+    await bot.send_message(chat_id=call.from_user.id,
                            text=f'Главное меню\n\n'
                                 f'Пользователь: {user.first_name}\n'
                                 f'Почта: {user.email}\n',
@@ -108,10 +119,9 @@ async def user_main_menu(msg: Message, state: FSMContext):
 
 
 async def __ref(message: Message, state: FSMContext):
-    ref_link = await get_start_link(payload='351931465-1711620726794x118791242414806770')
+    ref_link = await get_start_link(payload='tester')
     await message.answer(f'Привет {message.from_user.first_name}\n'
                          f'Твоя ссылка: {ref_link}')
-
 
 
 # async def __getName(message: Message, state: FSMContext):
@@ -191,6 +201,3 @@ def _register_register_handlers(dp: Dispatcher) -> None:
                                 Text(equals=cancel_btn), state=Request.MakeRequest)
     # dp.register_message_handler(__getName, content_types=[ContentType.TEXT], state=Register.WaitLogin)
     # dp.register_callback_query_handler(attention_to_sub, lambda c: c.data == 'check_sub_status', state='*')
-
-
-

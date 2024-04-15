@@ -13,34 +13,9 @@ class Request(StatesGroup):
     MakeRequest: Final = State()
 
 
-class Event(StatesGroup):
-    CreateEvent: Final = State()
-    ConnectToEvent: Final = State()
-    ShowEvents: Final = State()
-
-
-class EventAddCheck(StatesGroup):
-    ChooseMember: Final = State()
-    WriteName: Final = State()
-    WriteAmount: Final = State()
-    ChoosePayers: Final = State()
-
-
-class EventTransactions(StatesGroup):
-    SelectTransaction: Final = State()
-    OpenTransaction: Final = State()
-
-
-class EventMembers(StatesGroup):
-    ShowAllMembers: Final = State()
-    AddNewMember: Final = State()
-    AddNewMemberBotName: Final = State()
-    AddNewMemberUserID: Final = State()
-
-
-
-class EventCalculation(StatesGroup):
-    Calculate: Final = State()
+class ViewDialogs(StatesGroup):
+    ShowAll: Final = State()
+    ShowSelected: Final = State()
 
 
 class ADPosting(StatesGroup):

@@ -8,7 +8,16 @@ from database.schemas.user import User
 
 async def add_user(telegram_id: str, telegram_username):
     try:
-        user = User(telegram_id=telegram_id, telegram_username=telegram_username)
+        user = User(telegram_id=str(telegram_id), telegram_username=telegram_username)
+        await user.create()
+    except UniqueViolationError:
+        print("Пользователь не добавлен")
+
+
+async def add_tester_user(telegram_id: str, telegram_username=''):
+    try:
+        user = User(first_name='Тестер', last_name='Тестовый', telegram_id=str(telegram_id),
+                    telegram_username=telegram_username)
         await user.create()
     except UniqueViolationError:
         print("Пользователь не добавлен")
@@ -44,9 +53,27 @@ async def add_request_to_dialog(dialog_id: str, prompt):
         print("Запрос не создан")
 
 
+async def add_answer_to_request(request_id: str, answer, usage_completion_tokens, usage_prompt_tokens,
+                                usage_total_tokens):
+    request = await Requests.query.where(Requests.request_id == request_id).gino.first()
+    await request.update(answer=answer, usage_completion_tokens=usage_completion_tokens,
+                         usage_prompt_tokens=usage_prompt_tokens, usage_total_tokens=usage_total_tokens).apply()
+
+
 async def select_all_users():
     users = await User.query.gino.all()
     return users
+
+
+async def select_all_user_dialogs(telegram_id):
+    user = await select_user_by_telegram_id(telegram_id)
+    dialogs = await Dialogs.query.where(Dialogs.user_id == user.user_id).gino.all()
+    return dialogs
+
+
+async def select_requests_of_user_dialog(dialog_id):
+    dialogs = await Requests.query.where(Requests.dialog_id == int(dialog_id)).gino.all()
+    return dialogs
 
 
 async def count_users():
