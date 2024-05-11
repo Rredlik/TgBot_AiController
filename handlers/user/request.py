@@ -1,12 +1,10 @@
-from tkinter import dialog
-
 from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.types import Message, ContentType, InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, \
     ReplyKeyboardMarkup, CallbackQuery
 
-from database.quick_commands import add_dialog, add_request_to_dialog, select_all_user_dialogs, \
+from database.quick_commands import add_dialog, add_request_to_dialog, select_all_active_user_dialogs, \
     select_requests_of_user_dialog, add_answer_to_request
 from handlers import keyboards as kb
 from handlers.user.register import user_main_menu
@@ -53,7 +51,6 @@ async def __dialog_created_setName(msg: Message, state: FSMContext):
     # await state.update_data(dialog_id=msg.text)
     markup = (ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
               .add(cancel_btn))
-    request_id = await add_request_to_dialog(dialog_id, msg.text)
 
     await bot.send_message(chat_id=msg.from_user.id,
                            text=f'Создан диалог с названием "{msg.text}"\n\n',
@@ -91,16 +88,14 @@ async def __create_new_request(msg: Message, state: FSMContext):
     prompt_tokens = answer_data['usage']['prompt_tokens']
     total_tokens = answer_data['usage']['total_tokens']
     answer = [answer_data['choices'][0]['message']['content']]
-    '''
-    API: отправить запрос к ИИ получив ответ
-    answer = api_chatgpt()
-    if len(answer) > 200: # доработать
-        answer = answer.split('.', maxsplit=1)
-    '''
-
-    # answer = ['Сгенерированный ответ.']  # , 'Продолжение ответа.']
     answer_text = "".join(answer)
     await add_answer_to_request(request_id, answer_text, completion_tokens, prompt_tokens, total_tokens)
+    '''
+        API: отправить запрос к ИИ получив ответ
+        answer = api_chatgpt()
+        if len(answer) > 200: # доработать
+            answer = answer.split('.', maxsplit=1)
+    '''
     answer.append(f'\n\nНапишите следующий запрос или нажмите кнопку "{cancel_btn.text}"')
     # for message in answer:
     await bot.edit_message_text(chat_id=msg.from_user.id,
@@ -117,7 +112,7 @@ async def __view_all_user_dialogs(msg: Message, state: FSMContext):
     await state.reset_state()
     await state.set_state(ViewDialogs.ShowAll)
 
-    dialogs = await select_all_user_dialogs(msg.from_user.id)
+    dialogs = await select_all_active_user_dialogs(msg.from_user.id)
     # markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     markup = InlineKeyboardMarkup()
     for dialog in dialogs:
