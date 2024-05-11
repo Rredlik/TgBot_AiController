@@ -1,16 +1,29 @@
-from sqlalchemy import Column, BigInteger, String, DateTime, Boolean, sql
+from sqlalchemy import Column, String, Boolean, sql, Integer, ForeignKey, VARCHAR
+from sqlalchemy.orm import relationship
+import sqlalchemy as sa
 
 from database.main import TimedBaseModel
 
 
-class Solution(TimedBaseModel):
+class Solutions(TimedBaseModel):
     __tablename__ = "Solution"
-    solution_id = Column(BigInteger, primary_key=True)
-    name = Column(String(50))
-    small_description = Column(String)
-    description = Column(String)
-    price = Column(BigInteger, default=0)
-    is_active = Column(Boolean, default=True)
+    solution_id = Column(Integer, primary_key=True, index=True)
+    name = Column(VARCHAR)
+    small_description = Column(VARCHAR)
+    description = Column(VARCHAR)
+    price = Column(Integer, default=0, server_default=u'0')
+    is_active = Column(Boolean, default=True, server_default=sa.sql.true())
     picture = Column(String)
 
+    companies = relationship("Company", back_populates="solution")
+
+    query: sql.select
+
+
+class CompanySolution(TimedBaseModel):
+    __tablename__ = "CompanySolutions"
+    id = Column(Integer, primary_key=True)
+    solution_id = Column(Integer, ForeignKey("Solution.solution_id"))
+    company_id = Column(Integer, ForeignKey("Company.company_id"))
+    individual_price = Column(Integer)
     query: sql.select

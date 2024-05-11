@@ -4,12 +4,12 @@ from config import Env
 from database.main import db
 import quick_commands as commands
 from database.schemas.request import Requests, Dialogs
-from database.schemas.solution import Solution
+from database.schemas.solution import Solutions
 
 
 async def db_test():
     await db.set_bind(Env.POSTGRES_URI)
-    # await db.gino.drop_all()
+    await db.gino.drop_all()
     await db.gino.create_all()
 
     # await Requests.create(name='test dialog 1', user_id=2)

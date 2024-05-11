@@ -55,7 +55,7 @@ async def add_request_to_dialog(dialog_id: str, prompt):
 
 async def add_answer_to_request(request_id: str, answer, usage_completion_tokens, usage_prompt_tokens,
                                 usage_total_tokens):
-    request = await Requests.query.where(Requests.request_id == request_id).gino.first()
+    request = await Requests.query.where(Requests.id == request_id).gino.first()
     await request.update(answer=answer, usage_completion_tokens=usage_completion_tokens,
                          usage_prompt_tokens=usage_prompt_tokens, usage_total_tokens=usage_total_tokens).apply()
 
@@ -65,9 +65,9 @@ async def select_all_users():
     return users
 
 
-async def select_all_user_dialogs(telegram_id):
+async def select_all_active_user_dialogs(telegram_id):
     user = await select_user_by_telegram_id(telegram_id)
-    dialogs = await Dialogs.query.where(Dialogs.user_id == user.user_id).gino.all()
+    dialogs = await Dialogs.query.where(Dialogs.user_id == user.user_id, Dialogs.is_deleted is False).gino.all()
     return dialogs
 
 
@@ -104,7 +104,7 @@ async def update_user_connect_bot(telegram_id: str, website_id: str, new_usernam
 
 
 async def select_company(company_id: str):
-    company = await Company.query.where(Company.company_id == str(company_id)).gino.first()
+    company = await Company.query.where(Company.website_id == str(company_id)).gino.first()
     return company
 
 
