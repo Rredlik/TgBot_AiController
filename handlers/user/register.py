@@ -110,8 +110,9 @@ cancel_btn = KeyboardButton('Назад 🔙')
 
 async def user_main_menu(call: Message or CallbackQuery, state: FSMContext):
     await state.reset_state()
-    user = await select_user_by_telegram_id(call.from_user.id)
-    await bot.send_message(chat_id=call.from_user.id,
+    user_tg_id = call.from_user.id
+    user = await select_user_by_telegram_id(user_tg_id)
+    await bot.send_message(chat_id=user_tg_id,
                            text=f'Главное меню\n\n'
                                 f'Пользователь: {user.first_name}\n'
                                 f'Почта: {user.email}\n',
