@@ -1,4 +1,5 @@
 from asyncpg import UniqueViolationError
+from loguru import logger
 
 from database.main import db
 from database.schemas.company import Company
@@ -10,8 +11,8 @@ async def add_user(telegram_id: str, telegram_username):
     try:
         user = User(telegram_id=str(telegram_id), telegram_username=telegram_username)
         await user.create()
-    except UniqueViolationError:
-        print("Пользователь не добавлен")
+    except UniqueViolationError as er:
+        logger.error(f"Пользователь не добавлен: {er}")
 
 
 async def add_tester_user(telegram_id: str, telegram_username=''):
@@ -19,16 +20,16 @@ async def add_tester_user(telegram_id: str, telegram_username=''):
         user = User(first_name='Тестер', last_name='Тестовый', telegram_id=str(telegram_id),
                     telegram_username=telegram_username)
         await user.create()
-    except UniqueViolationError:
-        print("Пользователь не добавлен")
+    except UniqueViolationError as er:
+        logger.error(f"Пользователь не добавлен: {er}")
 
 
 async def add_company(company_id: str, company_name):
     try:
         company = Company(company_id=str(company_id), company_name=company_name)
         await company.create()
-    except UniqueViolationError:
-        print("Компания не добавлена")
+    except UniqueViolationError as er:
+        logger.error(f"Компания не добавлена: {er}")
 
 
 async def add_dialog(dialog_name: str, telegram_id):
@@ -37,8 +38,8 @@ async def add_dialog(dialog_name: str, telegram_id):
         dialog = Dialogs(name=dialog_name, user_id=user.user_id)
         data = await dialog.create()
         return data.dialog_id
-    except UniqueViolationError:
-        print("Диалог не создан")
+    except UniqueViolationError as er:
+        logger.error(f"Диалог не создан: {er}")
 
 
 async def add_request_to_dialog(dialog_id: str, prompt):
@@ -49,13 +50,13 @@ async def add_request_to_dialog(dialog_id: str, prompt):
         '''
         data = await request.create()
         return data.request_id
-    except UniqueViolationError:
-        print("Запрос не создан")
+    except UniqueViolationError as er:
+        logger.error(f"Запрос не создан: {er}")
 
 
 async def add_answer_to_request(request_id: str, answer, usage_completion_tokens, usage_prompt_tokens,
                                 usage_total_tokens):
-    request = await Requests.query.where(Requests.id == request_id).gino.first()
+    request = await Requests.query.where(Requests.request_id == request_id).gino.first()
     await request.update(answer=answer, usage_completion_tokens=usage_completion_tokens,
                          usage_prompt_tokens=usage_prompt_tokens, usage_total_tokens=usage_total_tokens).apply()
 
@@ -99,25 +100,27 @@ async def update_user_name_bot(telegram_id: str, new_username):
 
 async def update_user_connect_bot(telegram_id: str, website_id: str, new_username):
     user = await select_user_by_website_id(str(website_id))
-    print(f'update_user_connect_bot: {user}')
+    # print(f'update_user_connect_bot: {user}')
+    logger.info(f"{user}")
     await user.update(telegram_id=str(telegram_id), telegram_username=new_username, have_bot=True).apply()
 
 
 async def select_company(company_id: str):
-    company = await Company.query.where(Company.website_id == str(company_id)).gino.first()
+    company = await Company.query.where(Company.company_id == company_id).gino.first()
     return company
 
 
 ## registration
-async def check_args(company_id):
-    if company_id == '':
+async def check_args(user_website_id):
+    if user_website_id == '':
         company = '0'
-    elif not company_id.isnumeric():
-        company = await select_company(company_id)
-        if company is None:
-            company = '0'
-        else:
-            company = company
+    elif not user_website_id.isnumeric():
+        # company = await select_company(user_website_id)
+        # if company is None:
+        #     company = '0'
+        # else:
+        #     company = company
+        print(True)
     else:
         company = '0'
     return company
