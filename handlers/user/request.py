@@ -26,6 +26,8 @@ async def _cancel_action_query(query: CallbackQuery, state: FSMContext):
     await state.reset_state()
     # print("чоо")
     await user_main_menu(query, state)
+
+
 #############################
 #############################
 
@@ -84,23 +86,27 @@ async def __create_new_request(msg: Message, state: FSMContext):
                                         text=f'Запрос отправлен, ответ генерируется, подождите пожалуйста...')
 
     answer_data = await send_requests(msg.text)
-    completion_tokens = answer_data['usage']['completion_tokens']
-    prompt_tokens = answer_data['usage']['prompt_tokens']
-    total_tokens = answer_data['usage']['total_tokens']
-    answer = [answer_data['choices'][0]['message']['content']]
-    answer_text = "".join(answer)
-    await add_answer_to_request(request_id, answer_text, completion_tokens, prompt_tokens, total_tokens)
+    if answer_data is not None:
+        completion_tokens = answer_data['usage']['completion_tokens']
+        prompt_tokens = answer_data['usage']['prompt_tokens']
+        total_tokens = answer_data['usage']['total_tokens']
+        answer = [answer_data['choices'][0]['message']['content']]
+        answer_text = "".join(answer)
+        await add_answer_to_request(request_id, answer_text, completion_tokens, prompt_tokens, total_tokens)
+        answer.append(f'\n\nНапишите следующий запрос или нажмите кнопку "{cancel_btn.text}"')
+        answer_text = (f'<b>Вопрос:</b> {msg.text}\n\n'
+                       f'<b>Ответ:</b> {"".join(answer)}')
+    else:
+        answer_text = 'Извините, произошла ошибка, если это повториться напишите в техническую поддержку'
     '''
         API: отправить запрос к ИИ получив ответ
         answer = api_chatgpt()
         if len(answer) > 200: # доработать
             answer = answer.split('.', maxsplit=1)
     '''
-    answer.append(f'\n\nНапишите следующий запрос или нажмите кнопку "{cancel_btn.text}"')
     # for message in answer:
     await bot.edit_message_text(chat_id=msg.from_user.id,
-                                text=f'<b>Вопрос:</b> {msg.text}\n\n'
-                                     f'<b>Ответ:</b> {"".join(answer)}',
+                                text=answer_text,
                                 message_id=sended_msg.message_id)
 
 
@@ -142,6 +148,7 @@ async def __view_selected_dialog(query: CallbackQuery, state: FSMContext):
     await bot.send_message(chat_id=query.from_user.id,
                            text=f'{msg_text}',
                            reply_markup=markup)
+
 
 #############################
 #############################

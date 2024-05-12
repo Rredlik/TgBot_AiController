@@ -3,6 +3,7 @@ import json
 import uuid
 
 import aiohttp
+from loguru import logger
 
 from config import Env
 
@@ -19,12 +20,15 @@ async def get_auth(auth_token):
         'Accept': 'application/json',
         'RqUID': f'{rq_uid}',
         'Authorization': f'Bearer {auth_token}'}
-    async with aiohttp.ClientSession() as session:
-        response = await session.post(url,
-                                      data=payload,
-                                      headers=headers,
-                                      ssl=False)
-        return (await response.json())['access_token']
+    try:
+        async with aiohttp.ClientSession() as session:
+            response = await session.post(url,
+                                          data=payload,
+                                          headers=headers,
+                                          ssl=False)
+            return (await response.json())['access_token']
+    except Exception as er:
+        logger.error(f"Ошибка создания подключения: {er}")
 
 
 async def send_requests(prompt):
@@ -51,15 +55,19 @@ async def send_requests(prompt):
         'Accept': 'application/json',
         'Authorization': f'Bearer {giga_token}'
     }
+    try:
+        async with aiohttp.ClientSession() as session:
+            response = await session.post(url,
+                                          data=payload,
+                                          headers=headers,
+                                          ssl=False)
+            answer = await response.json()
+            # print(answer)
+            return answer
+    except Exception as er:
+        logger.error(f"Ошибка отправки запроса: {er}")
+        return None
 
-    async with aiohttp.ClientSession() as session:
-        response = await session.post(url,
-                                      data=payload,
-                                      headers=headers,
-                                      ssl=False)
-        answer = await response.json()
-        # print(answer)
-        return answer
 
 
 # 1713206017559
