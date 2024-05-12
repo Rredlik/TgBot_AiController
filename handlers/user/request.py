@@ -99,9 +99,8 @@ async def __create_new_request(msg: Message, state: FSMContext):
     answer.append(f'\n\nНапишите следующий запрос или нажмите кнопку "{cancel_btn.text}"')
     # for message in answer:
     await bot.edit_message_text(chat_id=msg.from_user.id,
-                                text=f'Вопрос: {msg.text}\n'
-                                     f'Ответ:\n'
-                                     f'{"".join(answer)}',
+                                text=f'<b>Вопрос:</b> {msg.text}\n\n'
+                                     f'<b>Ответ:</b> {"".join(answer)}',
                                 message_id=sended_msg.message_id)
 
 
