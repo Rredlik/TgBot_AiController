@@ -6,6 +6,7 @@ from config import ADMIN_LINK
 from filters.main import IsSubscriber
 from handlers.user.request import register_request_handlers
 from handlers.user.register import _register_register_handlers
+from handlers.user.user_settings import register_settings_handlers
 from loader import bot
 
 
@@ -22,6 +23,7 @@ def register_users_handlers(dp: Dispatcher) -> None:
 
     _register_register_handlers(dp)
     register_request_handlers(dp)
+    register_settings_handlers(dp)
     # register_transaction_handlers(dp)
     # register_calculation_handlers(dp)
     # register_members_handlers(dp)

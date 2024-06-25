@@ -72,4 +72,4 @@ async def send_requests(prompt):
 
 # 1713206017559
 if __name__ == '__main__':
-    print(asyncio.run(send_requests('Что делать если хочется спать')))
+    print(asyncio.run(send_requests('Почему дождевые тучи серые')))

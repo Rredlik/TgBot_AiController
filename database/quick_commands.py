@@ -17,7 +17,7 @@ async def add_user(telegram_id: str, telegram_username):
 
 async def add_tester_user(telegram_id: str, telegram_username=''):
     try:
-        user = User(first_name='Тестер', last_name='Тестовый', telegram_id=str(telegram_id),
+        user = User(website_id=f'{telegram_id}', first_name='Тестер', last_name='Тестовый', telegram_id=str(telegram_id),
                     telegram_username=telegram_username)
         await user.create()
     except UniqueViolationError as er:
@@ -68,7 +68,7 @@ async def select_all_users():
 
 async def select_all_active_user_dialogs(telegram_id):
     user = await select_user_by_telegram_id(telegram_id)
-    dialogs = await Dialogs.query.where(Dialogs.user_id == user.user_id, Dialogs.is_deleted is False).gino.all()
+    dialogs = await Dialogs.query.where(Dialogs.user_id == user.user_id and Dialogs.is_deleted is False).gino.all()
     return dialogs
 
 

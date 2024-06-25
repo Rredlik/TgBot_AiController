@@ -34,8 +34,8 @@ btn_profile = 'Настройки'
 async def kb_main_menu(user_id: int):
     markup = (ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
               .add(KeyboardButton(btn_new_request))
-              .add(KeyboardButton(btn_my_requests)))
-              # .add(KeyboardButton(btn_profile)))
+              .add(KeyboardButton(btn_my_requests))
+              .add(KeyboardButton(btn_profile)))
     # is_admin = await isAdmin(user_id)
     # if is_admin:
     #     (markup
